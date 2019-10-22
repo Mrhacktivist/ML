@@ -1,0 +1,24 @@
+library(arules)
+library(arulesViz)
+library(datasets)
+data("Groceries")
+itemFrequencyPlot(Groceries,topN=20,type="absolute")
+gr_rules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8))
+options(digits=2)
+inspect(gr_rules[1:5])
+gr_rules<-sort(gr_rules, by="confidence", decreasing=TRUE)
+gr_rules<-apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8,maxlen=3))
+subset.matrix <- is.subset(gr_rules, gr_rules)
+subset.matrix[lower.tri(subset.matrix, diag=T)]<-NA
+redundant <- colSums(subset.matrix, na.rm=T) >= 1
+gr_rules.pruned <- gr_rules[!redundant]
+gr_rules<-gr_rules.pruned
+gr_rules<-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.08), 
+appearance = list(default="lhs",rhs="whole milk"),control = list(verbose=F))
+gr_rules<-sort(gr_rules, decreasing=TRUE,by="confidence")
+inspect(gr_rules[1:5])
+gr_rules<-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.15,minlen=2), 
+    appearance = list(default="rhs",lhs="whole milk"),
+    control = list(verbose=F))
+gr_rules<-sort(gr_rules, decreasing=TRUE,by="confidence")
+inspect(gr_rules[1:5])
